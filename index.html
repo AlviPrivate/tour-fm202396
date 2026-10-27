@@ -1,0 +1,941 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#151a11"><title>Meu novo tour</title><link rel="stylesheet" href="assets/pannellum.css"><style>
+*{box-sizing:border-box}html,body,#panorama{height:100%;margin:0;background:#131810;font-family:system-ui,sans-serif;color:#fff}#panorama{position:fixed;inset:0}.branding{position:fixed;left:28px;top:25px;z-index:5;text-shadow:0 2px 12px #000;pointer-events:none}.branding img{width:75px;height:62px;object-fit:contain;display:block}.branding strong{letter-spacing:3px;font-size:14px}.branding small{display:block;font-size:8px;letter-spacing:2px;color:#e4cd97;margin-top:7px}.location{position:fixed;left:30px;bottom:35px;z-index:5;text-shadow:0 2px 12px #000;max-width:60%}.location small{font-size:9px;letter-spacing:2px;color:#e4cd97}h1{font-size:clamp(24px,4vw,42px);font-weight:400;margin:8px 0;overflow-wrap:anywhere}#counter{font-size:11px;color:#e4cd97}button{cursor:pointer;color:#eee9d8;background:#182011d9;border:1px solid #c8b77b66;border-radius:8px;padding:12px 16px;backdrop-filter:blur(15px);font:inherit;transition:.2s}button:hover,button.active{background:#d6bb7a;color:#25291d}button:focus-visible{outline:2px solid #e4cd97;outline-offset:4px}#menuBtn{position:fixed;top:27px;right:28px;z-index:8;font-size:12px}#menu{position:fixed;top:80px;right:28px;z-index:8;width:min(290px,calc(100vw - 40px));padding:16px;background:#171f12ed;border:1px solid #c8b77b55;border-radius:12px;backdrop-filter:blur(20px);box-shadow:0 15px 50px #0006}#menu p{font-size:9px;color:#d9c58d;letter-spacing:2px;margin:2px 0 14px}#rooms{max-height:60vh;overflow:auto}#rooms button{display:block;width:100%;text-align:left;margin:7px 0;font-size:12px;overflow-wrap:anywhere}.navigation{position:fixed;right:28px;bottom:30px;display:flex;gap:8px;z-index:5}.navigation button{font-size:20px;padding:8px 16px}#hint{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#182011cc;border:1px solid #abb18d33;backdrop-filter:blur(10px);padding:10px 14px;border-radius:9px;z-index:4;font-size:10px;color:#e2e5d7;white-space:nowrap}.door-hotspot{width:42px!important;height:42px!important;border:1px solid #ead49a!important;border-radius:50%;background:#1b2411d9!important;box-shadow:0 0 0 7px #d6bb7a30;cursor:pointer;animation:doorPulse 2s infinite}.door-hotspot:after{content:'↗';font-size:27px;color:#f5e2ae;position:absolute;inset:1px;text-align:center}@keyframes doorPulse{50%{box-shadow:0 0 0 13px #d6bb7a05}}[hidden]{display:none!important}.pnlm-load-box{background:#20271b;border:1px solid #b1a16c;color:#e6deb9;border-radius:9px}.pnlm-controls-container{bottom:110px;top:auto}@media(max-width:700px){.branding{left:20px;top:18px}.branding strong{font-size:11px}.branding small{font-size:6px}.location{left:20px;bottom:83px;max-width:85%}#hint{bottom:19px;font-size:8px;max-width:80vw;white-space:normal;text-align:center}.navigation{bottom:85px;right:20px}#menuBtn{right:20px;top:20px}#menu{right:20px}h1{max-width:70vw;font-size:26px}.pnlm-controls-container{bottom:150px}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* Persistent identity sits above both panorama layers during travel. */
+.tour-identity,.branding{position:absolute;top:20px;left:20px;z-index:7;width:202px;padding:16px;border:1px solid #ddc68a45;border-radius:13px;background:linear-gradient(145deg,#12170ee8,#11170eb5);box-shadow:0 8px 32px #0004;backdrop-filter:blur(14px);pointer-events:none}
+.tour-logo{position:relative;width:168px;aspect-ratio:1827 / 1266;overflow:hidden}
+.tour-logo img,.branding .tour-logo img{position:absolute;width:112.1%;max-width:none;height:auto;left:-6.1%;top:-28.2%;object-fit:contain;display:block;filter:drop-shadow(0 2px 4px #0004)}
+.branding strong{display:block;font-size:9px;margin-top:12px}.branding small{font-size:7px;letter-spacing:1px}
+.scene-overlay{top:auto!important;bottom:88px;max-width:calc(100% - 45px)}
+.scene-overlay h2{font-size:25px;margin:7px 0 9px}
+.app.is-traveling .sidebar,.app.is-traveling .rail,.app.is-traveling .filmstrip,.app.is-traveling .scene-toolbar,.app.is-traveling .top-actions{pointer-events:none}
+#travelError{position:fixed;z-index:20;bottom:90px;left:50%;transform:translateX(-50%);max-width:85vw;background:#202719f5;color:#ead7a9;border:1px solid #a28c53;border-radius:10px;padding:14px 18px;font:12px/1.6 system-ui;text-align:center}
+@media(max-width:760px){.tour-identity,.branding{top:16px;left:16px;width:156px;padding:13px;border-radius:10px}.tour-logo{width:128px}.scene-overlay{bottom:82px;left:20px}.scene-overlay h2{font-size:21px}.scene-overlay .eyebrow{font-size:8px}.preview-mode .scene-overlay{bottom:90px}.preview-mode .tour-identity{top:16px;left:16px}}
+
+/* Tour tools, property presentation and contact. */
+.tabs{gap:0;justify-content:space-between}.tabs button{font-size:10px}.photo-settings,.entry-view{margin-top:17px;padding-top:4px;border-top:1px solid #333b29}.photo-settings .field-label{margin-top:14px}.compact-help{font-size:9px;line-height:1.7;color:#879c72;margin:8px 0}.photo-stats{display:block;color:#b8c89c;font-size:9px;line-height:1.6;margin:2px 0 10px}.entry-view .wide{margin-top:0;padding:9px;font-size:10px}.entry-view .field-label{margin-top:12px}.entry-view{padding-bottom:4px}.return-toggle{margin:15px 0 17px}.return-toggle small{font-size:9px;line-height:1.6}.connection-actions{display:flex;flex-shrink:0;gap:2px}.connection-item>span{flex:1}.field[rows]{resize:vertical;line-height:1.6;min-height:90px;max-height:260px}.door-label,.pnlm-container .door-label{position:absolute!important;visibility:visible!important;display:block!important;top:calc(100% + 13px)!important;left:50%!important;bottom:auto!important;transform:translateX(-50%);width:max-content;max-width:175px!important;margin:0!important;padding:7px 10px!important;border:1px solid #bfa76977;border-radius:7px;background:#15200fee!important;backdrop-filter:blur(9px);box-shadow:0 3px 15px #0004;color:#f3e5be!important;font:500 10px/1.5 system-ui,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;box-sizing:border-box!important;text-align:center}.door-label:after{display:none!important}.door-hotspot:focus-visible{outline:2px solid #ffedbe;outline-offset:8px}.property-actions{position:absolute;right:23px;bottom:93px;z-index:8;display:flex;flex-direction:column;align-items:flex-end;gap:8px}.property-info,.whatsapp-cta{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:11px 15px;border-radius:8px;font:500 11px/1.5 system-ui,sans-serif;text-decoration:none;cursor:pointer;transition:transform .2s,background .2s;border:1px solid #bfbd9466;box-shadow:0 5px 18px #0002;backdrop-filter:blur(14px)}.property-info{background:#172210e8;color:#e4e9d8}.property-info:hover{background:#38492b;color:#fff}.whatsapp-cta{background:#bdd4a7;color:#152711;border-color:#d4e7c3}.whatsapp-cta:hover{transform:translateY(-2px);background:#d0e7bc}.whatsapp-cta svg{height:19px;width:19px;flex-shrink:0}.property-actions [hidden],.property-dialog [hidden]{display:none!important}.stage:not(.has-scene) .property-actions{display:none}.scene-overlay{max-width:calc(100% - 220px)}.property-dialog{position:fixed;inset:0;width:min(475px,calc(100vw - 30px));max-height:88dvh;margin:auto;overflow:auto;padding:32px;background:#182113;color:#e7eddd;border:1px solid #74845b;border-radius:16px;box-shadow:0 25px 100px #0008;font-family:system-ui,sans-serif;scrollbar-width:thin}.property-dialog::backdrop{background:#050905b8;backdrop-filter:blur(7px)}.property-dialog .property-close{position:absolute;top:12px;right:13px;width:30px;height:30px;padding:0;border:0;background:#314028;color:#cbdcba;border-radius:7px;cursor:pointer;font-size:23px;line-height:30px}.property-eyebrow{color:#d1bd7d;font-size:8px;letter-spacing:2px;display:block;margin:0 30px 13px 0}.property-dialog h2{font-size:27px;font-weight:400;line-height:1.3;letter-spacing:-.7px;margin:0 20px 10px 0;overflow-wrap:anywhere}.property-dialog .property-location{color:#9eb58b;font-size:12px;line-height:1.7;margin:0 0 20px;overflow-wrap:anywhere}.property-price{display:block;font-size:27px;color:#e7d39e;line-height:1.4;margin:20px 0}.property-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:22px 0}.property-metrics>div{padding:16px;border:1px solid #3d4d30;border-radius:9px;background:#202b19}.property-metrics strong{display:block;color:#e0e8cf;font-size:20px;font-weight:400;overflow-wrap:anywhere}.property-metrics span{color:#97aa81;display:block;font-size:10px;margin-top:6px}.property-dialog .property-description{font-size:12px;line-height:1.9;color:#bdcdae;white-space:pre-line;overflow-wrap:anywhere;margin:22px 0}.property-dialog-contact{width:100%;text-align:center;margin-top:5px}.property-dialog .property-signature{font-size:9px;line-height:1.8;color:#819a6b;margin:21px 0 0}.property-info:focus-visible,.whatsapp-cta:focus-visible,.property-close:focus-visible{outline:2px solid #edda9f;outline-offset:4px}.preview-mode .property-actions{bottom:95px}
+@media(max-width:760px){.property-actions,.preview-mode .property-actions{right:14px;bottom:173px;gap:7px}.property-info,.whatsapp-cta{font-size:10px;padding:9px 12px;min-height:38px}.property-dialog{padding:27px 23px;max-height:86dvh}.property-dialog h2{font-size:24px}.property-metrics>div{padding:12px}.property-metrics strong{font-size:18px}.scene-overlay{max-width:calc(100% - 40px)}.door-label,.pnlm-container .door-label{font-size:9px;max-width:135px!important;padding:6px 8px!important}.scene-toolbar{max-width:calc(100% - 25px)}}
+@media(prefers-reduced-motion:reduce){.whatsapp-cta,.property-info{transition:none!important;transform:none!important}}
+
+</style></head><body><div id="panorama"></div><div class="branding"><div class="tour-logo"><img src="assets/logo.webp" alt="Alvi Private · inteligência imobiliária"></div><strong id="brand"></strong><small id="subtitle"></small></div><div class="location"><small>VOCÊ ESTÁ EM</small><h1 id="name"></h1><span id="counter"></span></div><button id="menuBtn" aria-expanded="false" aria-controls="menu">☰ &nbsp; Ambientes</button><nav id="menu" hidden aria-label="Ambientes do tour"><p>ESCOLHA SEU PRÓXIMO ESPAÇO</p><div id="rooms"></div></nav><div class="navigation"><button id="prev" aria-label="Ambiente anterior">←</button><button id="next" aria-label="Próximo ambiente">→</button></div><div id="travelError" role="status" hidden>Não foi possível carregar o próximo ambiente. Tente novamente.</div><div id="hint">Arraste para explorar · Use o scroll para aproximar · Clique nas passagens</div><script src="assets/pannellum.js"></script><script>function normalizeProperty(value={}){
+ const text=(key,max)=>String(value?.[key]??'').trim().slice(0,max);
+ const number=(key,max,integer=false)=>{const raw=text(key,30),n=Number(raw);return raw!==''&&Number.isFinite(n)&&n>=0&&n<=max&&(!integer||Number.isInteger(n))?String(n):''};
+ return{name:text('name',100),location:text('location',180),area:number('area',10000000),bedrooms:number('bedrooms',1000,true),bathrooms:number('bathrooms',1000,true),parking:number('parking',1000,true),price:number('price',1000000000000),description:text('description',1800),whatsapp:text('whatsapp',40)};
+}
+function normalizeWhatsApp(value){const raw=String(value||'').trim();if(!/^[+\d\s().-]+$/.test(raw))return '';let digits=raw.replace(/\D/g,'');if(!raw.startsWith('+')&&(digits.length===10||digits.length===11))digits='55'+digits;if(digits.startsWith('55')&&!/^55[1-9]\d(?:[2-5]\d{7}|9\d{8})$/.test(digits))return '';return /^[1-9]\d{7,14}$/.test(digits)?digits:''}
+function mountPropertyExperience(container,initialSettings){
+ const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const actions=document.createElement('div');actions.className='property-actions';actions.innerHTML='<button class="property-info" type="button">ⓘ <span>Ficha do imóvel</span></button><a class="whatsapp-cta" target="_blank" rel="noopener noreferrer" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M21 11.5a9 9 0 0 1-13 8L3 21l1.5-5a9 9 0 1 1 16.5-4.5Z"/><path d="M8 7c0 5 4 9 9 9l1-3-3-1-1 1c-2-1-3-2-4-4l1-1-1-2-2 1Z"/></svg><span>Agendar visita</span></a>';
+ const dialog=document.createElement('dialog');dialog.className='property-dialog';dialog.setAttribute('aria-label','Informações do imóvel');container.append(actions,dialog);
+ const info=actions.querySelector('button'),contact=actions.querySelector('a');info.onclick=()=>{if(!dialog.open)dialog.showModal()};
+ dialog.addEventListener('click',e=>{if(e.target.closest('[data-property-close]'))dialog.close();else if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close()}});
+ function update(config){
+  const p=normalizeProperty(config.property),phone=normalizeWhatsApp(p.whatsapp),name=p.name||config.title||'Imóvel';
+  const hasDetails=Object.entries(p).some(([key,value])=>key!=='whatsapp'&&value!=='');info.hidden=!hasDetails;contact.hidden=!phone;actions.hidden=!hasDetails&&!phone;
+  const message=`Olá! Gostaria de agendar uma visita ao imóvel "${name}".${p.location?' Localização: '+p.location+'.':''} Vim pelo tour virtual.`;
+  if(phone)contact.href='https://wa.me/'+phone+'?text='+encodeURIComponent(message);else contact.removeAttribute('href');
+  const format=n=>new Intl.NumberFormat('pt-BR',{maximumFractionDigits:2}).format(Number(n));
+  const metrics=[['area','Área',v=>format(v)+' m²'],['bedrooms','Quartos',format],['bathrooms','Banheiros',format],['parking','Vagas',format]].filter(([key])=>p[key]!=='');
+  dialog.innerHTML=`<button class="property-close" data-property-close type="button" aria-label="Fechar ficha do imóvel">×</button><span class="property-eyebrow">${escape(config.brand||'ALVI PRIVATE')}</span><h2>${escape(name)}</h2>${p.location?`<p class="property-location">${escape(p.location)}</p>`:''}${p.price!==''?`<strong class="property-price">${escape(new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:0,maximumFractionDigits:2}).format(Number(p.price)))}</strong>`:''}${metrics.length?`<div class="property-metrics">${metrics.map(([key,label,fn])=>`<div><strong>${escape(fn(p[key]))}</strong><span>${label}</span></div>`).join('')}</div>`:''}${p.description?`<p class="property-description">${escape(p.description)}</p>`:''}${phone?`<a class="whatsapp-cta property-dialog-contact" target="_blank" rel="noopener noreferrer" href="${escape(contact.href)}">Conversar sobre este imóvel ↗</a>`:''}<p class="property-signature">Uma nova perspectiva para o seu próximo endereço.</p>`;
+ }
+ update(initialSettings);return{update,dialog,actions};
+}
+function createDoorHotspot(h,name,activate){
+ const label=(h.kind==='return'?'Voltar para ':'Ir para ')+name;
+ return{id:h.id,pitch:h.pitch,yaw:h.yaw,type:'info',cssClass:'door-hotspot',clickHandlerFunc:activate,createTooltipArgs:{label,activate},createTooltipFunc:(el,args)=>{const text=document.createElement('span');text.className='door-label';text.textContent=args.label;el.append(text);el.setAttribute('role','button');el.setAttribute('aria-label',args.label);el.title=args.label;el.tabIndex=0;el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();args.activate()}})}};
+}
+function createPanoramaTransition(host,makeViewer,onStateChange=()=>{}){
+ if(!document.getElementById('tourTransitionStyles')){const style=document.createElement('style');style.id='tourTransitionStyles';style.textContent=`.tour-panorama-layer{position:absolute;inset:0;transform-origin:center;will-change:opacity,transform;opacity:1}.tour-panorama-layer.is-waiting{opacity:0;pointer-events:none}.tour-panorama-layer.is-arriving{animation:tourArrival 680ms cubic-bezier(.2,.7,.2,1) both}.tour-panorama-layer.is-leaving{animation:tourDeparture 680ms ease both}.tour-traveling{pointer-events:none}.tour-panorama-layer.is-waiting .pnlm-load-box{display:none}@keyframes tourArrival{from{opacity:0;transform:scale(1.055);filter:blur(3px)}to{opacity:1;transform:scale(1);filter:blur(0)}}@keyframes tourDeparture{to{opacity:0;transform:scale(1.065);filter:blur(2px)}}@media(prefers-reduced-motion:reduce){.tour-panorama-layer{animation:none!important;transform:none!important;filter:none!important}}`;document.head.append(style)}
+ let active=null,busy=false,sequence=0,serial=0,timers=new Set(),retired=null;
+ const reduced=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches===true;
+ function later(fn,ms){const timer=setTimeout(()=>{timers.delete(timer);fn()},ms);timers.add(timer);return timer}
+ function clearTimers(){timers.forEach(clearTimeout);timers.clear()}
+ function dispose(item){if(!item)return;try{item.viewer.destroy()}catch{}item.el.remove()}
+ function state(value){busy=value;host.classList.toggle('tour-traveling',value);host.setAttribute('aria-busy',String(value));onStateChange(value)}
+ function open(config,{animate=true,focus=null,onReady=()=>{},onError=()=>{}}={}){
+  if(busy)return active?.viewer;
+  const token=++sequence,previous=active,previousFov=previous?.viewer.getHfov(),motion=!!previous&&animate&&previous.config.panorama!==config.panorama&&!reduced();clearTimers();
+  const el=document.createElement('div');el.className='tour-panorama-layer'+(motion?' is-waiting':'');el.id=host.id+'-panorama-'+(++serial);host.append(el);
+  const targetFov=config.hfov||100;const cfg={...config,...(motion?{hfov:Math.max(config.minHfov||40,targetFov-24),autoRotate:0}:{})};
+  let next;try{next={el,viewer:makeViewer(el.id,cfg),config};}catch(error){el.remove();onError(previous?.viewer,error);return previous?.viewer||null}
+  active=next;
+  if(!motion){dispose(previous);next.viewer.on('load',()=>{if(token===sequence)onReady(next.viewer)});next.viewer.on('error',error=>{if(token===sequence)onError(null,error)});return next.viewer}
+  retired=previous;state(true);let loaded=false,zoomed=false,settled=false;
+  function fail(error){if(token!==sequence||settled)return;settled=true;clearTimers();dispose(next);active=previous;retired=null;previous.el.classList.remove('is-leaving');try{previous.viewer.setHfov(previousFov||100,250);if(previous.config.autoRotate)previous.viewer.startAutoRotate(previous.config.autoRotate)}catch{}state(false);onError(previous.viewer,error)}
+  function reveal(){if(token!==sequence||settled||!loaded||!zoomed)return;settled=true;clearTimers();next.el.classList.remove('is-waiting');next.el.classList.add('is-arriving');previous.el.classList.add('is-leaving');try{next.viewer.setHfov(targetFov,680)}catch{}
+   later(()=>{if(token!==sequence)return;dispose(previous);retired=null;next.el.classList.remove('is-arriving');if(config.autoRotate)next.viewer.startAutoRotate(config.autoRotate);state(false);onReady(next.viewer)},700)
+  }
+  next.viewer.on('load',()=>{loaded=true;reveal()});next.viewer.on('error',fail);
+  try{previous.viewer.stopAutoRotate();if(focus&&Number.isFinite(focus.pitch)&&Number.isFinite(focus.yaw))previous.viewer.lookAt(focus.pitch,focus.yaw,48,480);else previous.viewer.setHfov(48,480)}catch{}
+  later(()=>{zoomed=true;reveal()},500);later(()=>fail(new Error('O próximo ambiente demorou para carregar.')),18000);
+  return next.viewer;
+ }
+ return{open,get busy(){return busy},destroy(){sequence++;clearTimers();dispose(active);if(retired&&retired!==active)dispose(retired);active=null;retired=null;state(false)}};
+}
+(function visitorApp(config){
+ const $=s=>document.querySelector(s);let v,index=0;const navigation=createPanoramaTransition($('#panorama'),(id,cfg)=>pannellum.viewer(id,cfg));const byId=id=>config.scenes.findIndex(s=>s.id===id);
+ mountPropertyExperience(document.body,config);
+ document.title=config.title;$('#brand').textContent=config.brand;$('#brand').hidden=config.brand==='ALVI PRIVATE';$('#subtitle').textContent=config.subtitle;$('#subtitle').hidden=config.subtitle==='INTELIGÊNCIA IMOBILIÁRIA';$('#hint').hidden=!config.showHints;
+ function show(i,focus=null){if(navigation.busy)return;const previousIndex=index;index=(i+config.scenes.length)%config.scenes.length;const s=config.scenes[index];v=navigation.open({type:'equirectangular',panorama:s.file,autoLoad:true,showControls:true,showFullscreenCtrl:true,escapeHTML:true,hfov:s.view?.hfov||100,pitch:s.view?.pitch||0,yaw:s.view?.yaw||0,minHfov:40,maxHfov:120,autoRotate:config.autoRotate?-2:0,hotSpots:s.hotspots.map(h=>createDoorHotspot(h,config.scenes[byId(h.targetId)]?.name||'ambiente',()=>{const j=byId(h.targetId);if(j>=0)show(j,h)})),strings:{loadingLabel:'Carregando ambiente…',noWebGLError:'Seu navegador precisa de WebGL para exibir o panorama.',fileAccessError:'Não foi possível carregar esta imagem. Abra o tour por uma hospedagem estática.'}},{focus,onError:fallback=>{if(fallback){v=fallback;index=previousIndex;updateLabels()}const el=$('#travelError');el.hidden=false;setTimeout(()=>el.hidden=true,5000)}});updateLabels()}function updateLabels(){const s=config.scenes[index];$('#name').textContent=s.name;$('#counter').textContent=String(index+1).padStart(2,'0')+' / '+String(config.scenes.length).padStart(2,'0');$('#rooms').replaceChildren();config.scenes.forEach((scene,i)=>{const b=document.createElement('button');b.textContent=scene.name;b.className=i===index?'active':'';b.onclick=()=>{show(i);$('#menu').hidden=true;$('#menuBtn').setAttribute('aria-expanded','false')};$('#rooms').append(b)})}
+ $('#menuBtn').onclick=()=>{$('#menu').hidden=!$('#menu').hidden;$('#menuBtn').setAttribute('aria-expanded',String(!$('#menu').hidden))};$('#prev').onclick=()=>show(index-1);$('#next').onclick=()=>show(index+1);document.addEventListener('keydown',e=>{if(document.querySelector('.property-dialog[open]'))return;if(e.key==='Escape'){$('#menu').hidden=true;$('#menuBtn').setAttribute('aria-expanded','false')}if(e.key==='ArrowRight')show(index+1);if(e.key==='ArrowLeft')show(index-1)});document.addEventListener('click',e=>{if(!e.target.closest('#menu,#menuBtn')){$('#menu').hidden=true;$('#menuBtn').setAttribute('aria-expanded','false')}});show(0);
+})({"title":"Meu novo tour","brand":"FM202396","subtitle":"INTELIGÊNCIA IMOBILIÁRIA","autoRotate":false,"showHints":true,"imageQuality":"balanced","autoReturn":false,"property":{"name":"Apartamento para locação, 2 Quartos, 1 vaga de garagem, Pompeia, Predio novo lazer completo.","location":"R Venâncio Aires, 930 - Vila Pompéia","area":"47","bedrooms":"2","bathrooms":"1","parking":"1","price":"4600","description":"🏡 Um imóvel aconchegante e bem distribuído, com 47m² de área útil, contando com * dormitórios, sala, banheiro e 1 vaga de garagem. Ideal para quem busca conforto e praticidade no dia a dia! ✨","whatsapp":"11 92097-0099"},"scenes":[{"id":"b45e297b-8585-4397-b1d5-2d1e9b29c833","name":"Sala","file":"assets/ambiente-01.webp","view":{"pitch":0,"yaw":0,"hfov":100},"hotspots":[{"id":"f2101a4d-f10d-48a8-bef9-49eac209196c","pitch":-2.781,"yaw":66.528,"targetId":"0077376e-68b1-42ba-8003-91d0d19b5798"},{"id":"4ebafea5-12cb-47ce-947e-48e83a54a56e","pitch":1.973,"yaw":101.733,"targetId":"7eca2733-61f3-4d7a-b7cf-94ed0352b424"}]},{"id":"0077376e-68b1-42ba-8003-91d0d19b5798","name":"Quarto 2","file":"assets/ambiente-02.webp","view":{"pitch":0,"yaw":0,"hfov":100},"hotspots":[{"id":"98003fa4-85e1-49c7-9151-0f858ce275d7","pitch":-3.472,"yaw":-113.244,"targetId":"b45e297b-8585-4397-b1d5-2d1e9b29c833"},{"id":"9fd1ef97-7398-4835-9d92-2e5c66fea056","pitch":-6.407,"yaw":161.245,"targetId":"7eca2733-61f3-4d7a-b7cf-94ed0352b424"}]},{"id":"7eca2733-61f3-4d7a-b7cf-94ed0352b424","name":"Quarto","file":"assets/ambiente-03.webp","view":{"pitch":0,"yaw":0,"hfov":100},"hotspots":[{"id":"0d4db8dd-7b33-463e-8d30-071f8eae37c4","pitch":-3.569,"yaw":141.46,"targetId":"0077376e-68b1-42ba-8003-91d0d19b5798"}]}]});</script><!-- THIRD-PARTY LICENSES
+Copyright (c) 2011-2019 Matthew Petroff
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+JSZip is dual licensed. At your choice you may use it under the MIT license *or* the GPLv3
+license.
+
+The MIT License
+===============
+
+Copyright (c) 2009-2016 Stuart Knightley, David Duponchel, Franz Buchinger, António Afonso
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+
+GPL version 3
+=============
+
+                    GNU GENERAL PUBLIC LICENSE
+                       Version 3, 29 June 2007
+
+ Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+                            Preamble
+
+  The GNU General Public License is a free, copyleft license for
+software and other kinds of works.
+
+  The licenses for most software and other practical works are designed
+to take away your freedom to share and change the works.  By contrast,
+the GNU General Public License is intended to guarantee your freedom to
+share and change all versions of a program—to make sure it remains free
+software for all its users.  We, the Free Software Foundation, use the
+GNU General Public License for most of our software; it applies also to
+any other work released this way by its authors.  You can apply it to
+your programs, too.
+
+  When we speak of free software, we are referring to freedom, not
+price.  Our General Public Licenses are designed to make sure that you
+have the freedom to distribute copies of free software (and charge for
+them if you wish), that you receive source code or can get it if you
+want it, that you can change the software or use pieces of it in new
+free programs, and that you know you can do these things.
+
+  To protect your rights, we need to prevent others from denying you
+these rights or asking you to surrender the rights.  Therefore, you have
+certain responsibilities if you distribute copies of the software, or if
+you modify it: responsibilities to respect the freedom of others.
+
+  For example, if you distribute copies of such a program, whether
+gratis or for a fee, you must pass on to the recipients the same
+freedoms that you received.  You must make sure that they, too, receive
+or can get the source code.  And you must show them these terms so they
+know their rights.
+
+  Developers that use the GNU GPL protect your rights with two steps:
+(1) assert copyright on the software, and (2) offer you this License
+giving you legal permission to copy, distribute and/or modify it.
+
+  For the developers' and authors' protection, the GPL clearly explains
+that there is no warranty for this free software.  For both users' and
+authors' sake, the GPL requires that modified versions be marked as
+changed, so that their problems will not be attributed erroneously to
+authors of previous versions.
+
+  Some devices are designed to deny users access to install or run
+modified versions of the software inside them, although the manufacturer
+can do so.  This is fundamentally incompatible with the aim of
+protecting users' freedom to change the software.  The systematic
+pattern of such abuse occurs in the area of products for individuals to
+use, which is precisely where it is most unacceptable.  Therefore, we
+have designed this version of the GPL to prohibit the practice for those
+products.  If such problems arise substantially in other domains, we
+stand ready to extend this provision to those domains in future versions
+of the GPL, as needed to protect the freedom of users.
+
+  Finally, every program is threatened constantly by software patents.
+States should not allow patents to restrict development and use of
+software on general-purpose computers, but in those that do, we wish to
+avoid the special danger that patents applied to a free program could
+make it effectively proprietary.  To prevent this, the GPL assures that
+patents cannot be used to render the program non-free.
+
+  The precise terms and conditions for copying, distribution and
+modification follow.
+
+                       TERMS AND CONDITIONS
+
+  0. Definitions.
+
+  "This License" refers to version 3 of the GNU General Public License.
+
+  "Copyright" also means copyright-like laws that apply to other kinds of
+works, such as semiconductor masks.
+
+  "The Program" refers to any copyrightable work licensed under this
+License.  Each licensee is addressed as "you".  "Licensees" and
+"recipients" may be individuals or organizations.
+
+  To "modify" a work means to copy from or adapt all or part of the work
+in a fashion requiring copyright permission, other than the making of an
+exact copy.  The resulting work is called a "modified version" of the
+earlier work or a work "based on" the earlier work.
+
+  A "covered work" means either the unmodified Program or a work based
+on the Program.
+
+  To "propagate" a work means to do anything with it that, without
+permission, would make you directly or secondarily liable for
+infringement under applicable copyright law, except executing it on a
+computer or modifying a private copy.  Propagation includes copying,
+distribution (with or without modification), making available to the
+public, and in some countries other activities as well.
+
+  To "convey" a work means any kind of propagation that enables other
+parties to make or receive copies.  Mere interaction with a user through
+a computer network, with no transfer of a copy, is not conveying.
+
+  An interactive user interface displays "Appropriate Legal Notices"
+to the extent that it includes a convenient and prominently visible
+feature that (1) displays an appropriate copyright notice, and (2)
+tells the user that there is no warranty for the work (except to the
+extent that warranties are provided), that licensees may convey the
+work under this License, and how to view a copy of this License.  If
+the interface presents a list of user commands or options, such as a
+menu, a prominent item in the list meets this criterion.
+
+  1. Source Code.
+
+  The "source code" for a work means the preferred form of the work
+for making modifications to it.  "Object code" means any non-source
+form of a work.
+
+  A "Standard Interface" means an interface that either is an official
+standard defined by a recognized standards body, or, in the case of
+interfaces specified for a particular programming language, one that
+is widely used among developers working in that language.
+
+  The "System Libraries" of an executable work include anything, other
+than the work as a whole, that (a) is included in the normal form of
+packaging a Major Component, but which is not part of that Major
+Component, and (b) serves only to enable use of the work with that
+Major Component, or to implement a Standard Interface for which an
+implementation is available to the public in source code form.  A
+"Major Component", in this context, means a major essential component
+(kernel, window system, and so on) of the specific operating system
+(if any) on which the executable work runs, or a compiler used to
+produce the work, or an object code interpreter used to run it.
+
+  The "Corresponding Source" for a work in object code form means all
+the source code needed to generate, install, and (for an executable
+work) run the object code and to modify the work, including scripts to
+control those activities.  However, it does not include the work's
+System Libraries, or general-purpose tools or generally available free
+programs which are used unmodified in performing those activities but
+which are not part of the work.  For example, Corresponding Source
+includes interface definition files associated with source files for
+the work, and the source code for shared libraries and dynamically
+linked subprograms that the work is specifically designed to require,
+such as by intimate data communication or control flow between those
+subprograms and other parts of the work.
+
+  The Corresponding Source need not include anything that users
+can regenerate automatically from other parts of the Corresponding
+Source.
+
+  The Corresponding Source for a work in source code form is that
+same work.
+
+  2. Basic Permissions.
+
+  All rights granted under this License are granted for the term of
+copyright on the Program, and are irrevocable provided the stated
+conditions are met.  This License explicitly affirms your unlimited
+permission to run the unmodified Program.  The output from running a
+covered work is covered by this License only if the output, given its
+content, constitutes a covered work.  This License acknowledges your
+rights of fair use or other equivalent, as provided by copyright law.
+
+  You may make, run and propagate covered works that you do not
+convey, without conditions so long as your license otherwise remains
+in force.  You may convey covered works to others for the sole purpose
+of having them make modifications exclusively for you, or provide you
+with facilities for running those works, provided that you comply with
+the terms of this License in conveying all material for which you do
+not control copyright.  Those thus making or running the covered works
+for you must do so exclusively on your behalf, under your direction
+and control, on terms that prohibit them from making any copies of
+your copyrighted material outside their relationship with you.
+
+  Conveying under any other circumstances is permitted solely under
+the conditions stated below.  Sublicensing is not allowed; section 10
+makes it unnecessary.
+
+  3. Protecting Users' Legal Rights From Anti-Circumvention Law.
+
+  No covered work shall be deemed part of an effective technological
+measure under any applicable law fulfilling obligations under article
+11 of the WIPO copyright treaty adopted on 20 December 1996, or
+similar laws prohibiting or restricting circumvention of such
+measures.
+
+  When you convey a covered work, you waive any legal power to forbid
+circumvention of technological measures to the extent such circumvention
+is effected by exercising rights under this License with respect to
+the covered work, and you disclaim any intention to limit operation or
+modification of the work as a means of enforcing, against the work's
+users, your or third parties' legal rights to forbid circumvention of
+technological measures.
+
+  4. Conveying Verbatim Copies.
+
+  You may convey verbatim copies of the Program's source code as you
+receive it, in any medium, provided that you conspicuously and
+appropriately publish on each copy an appropriate copyright notice;
+keep intact all notices stating that this License and any
+non-permissive terms added in accord with section 7 apply to the code;
+keep intact all notices of the absence of any warranty; and give all
+recipients a copy of this License along with the Program.
+
+  You may charge any price or no price for each copy that you convey,
+and you may offer support or warranty protection for a fee.
+
+  5. Conveying Modified Source Versions.
+
+  You may convey a work based on the Program, or the modifications to
+produce it from the Program, in the form of source code under the
+terms of section 4, provided that you also meet all of these conditions:
+
+    a) The work must carry prominent notices stating that you modified
+    it, and giving a relevant date.
+
+    b) The work must carry prominent notices stating that it is
+    released under this License and any conditions added under section
+    7.  This requirement modifies the requirement in section 4 to
+    "keep intact all notices".
+
+    c) You must license the entire work, as a whole, under this
+    License to anyone who comes into possession of a copy.  This
+    License will therefore apply, along with any applicable section 7
+    additional terms, to the whole of the work, and all its parts,
+    regardless of how they are packaged.  This License gives no
+    permission to license the work in any other way, but it does not
+    invalidate such permission if you have separately received it.
+
+    d) If the work has interactive user interfaces, each must display
+    Appropriate Legal Notices; however, if the Program has interactive
+    interfaces that do not display Appropriate Legal Notices, your
+    work need not make them do so.
+
+  A compilation of a covered work with other separate and independent
+works, which are not by their nature extensions of the covered work,
+and which are not combined with it such as to form a larger program,
+in or on a volume of a storage or distribution medium, is called an
+"aggregate" if the compilation and its resulting copyright are not
+used to limit the access or legal rights of the compilation's users
+beyond what the individual works permit.  Inclusion of a covered work
+in an aggregate does not cause this License to apply to the other
+parts of the aggregate.
+
+  6. Conveying Non-Source Forms.
+
+  You may convey a covered work in object code form under the terms
+of sections 4 and 5, provided that you also convey the
+machine-readable Corresponding Source under the terms of this License,
+in one of these ways:
+
+    a) Convey the object code in, or embodied in, a physical product
+    (including a physical distribution medium), accompanied by the
+    Corresponding Source fixed on a durable physical medium
+    customarily used for software interchange.
+
+    b) Convey the object code in, or embodied in, a physical product
+    (including a physical distribution medium), accompanied by a
+    written offer, valid for at least three years and valid for as
+    long as you offer spare parts or customer support for that product
+    model, to give anyone who possesses the object code either (1) a
+    copy of the Corresponding Source for all the software in the
+    product that is covered by this License, on a durable physical
+    medium customarily used for software interchange, for a price no
+    more than your reasonable cost of physically performing this
+    conveying of source, or (2) access to copy the
+    Corresponding Source from a network server at no charge.
+
+    c) Convey individual copies of the object code with a copy of the
+    written offer to provide the Corresponding Source.  This
+    alternative is allowed only occasionally and noncommercially, and
+    only if you received the object code with such an offer, in accord
+    with subsection 6b.
+
+    d) Convey the object code by offering access from a designated
+    place (gratis or for a charge), and offer equivalent access to the
+    Corresponding Source in the same way through the same place at no
+    further charge.  You need not require recipients to copy the
+    Corresponding Source along with the object code.  If the place to
+    copy the object code is a network server, the Corresponding Source
+    may be on a different server (operated by you or a third party)
+    that supports equivalent copying facilities, provided you maintain
+    clear directions next to the object code saying where to find the
+    Corresponding Source.  Regardless of what server hosts the
+    Corresponding Source, you remain obligated to ensure that it is
+    available for as long as needed to satisfy these requirements.
+
+    e) Convey the object code using peer-to-peer transmission, provided
+    you inform other peers where the object code and Corresponding
+    Source of the work are being offered to the general public at no
+    charge under subsection 6d.
+
+  A separable portion of the object code, whose source code is excluded
+from the Corresponding Source as a System Library, need not be
+included in conveying the object code work.
+
+  A "User Product" is either (1) a "consumer product", which means any
+tangible personal property which is normally used for personal, family,
+or household purposes, or (2) anything designed or sold for incorporation
+into a dwelling.  In determining whether a product is a consumer product,
+doubtful cases shall be resolved in favor of coverage.  For a particular
+product received by a particular user, "normally used" refers to a
+typical or common use of that class of product, regardless of the status
+of the particular user or of the way in which the particular user
+actually uses, or expects or is expected to use, the product.  A product
+is a consumer product regardless of whether the product has substantial
+commercial, industrial or non-consumer uses, unless such uses represent
+the only significant mode of use of the product.
+
+  "Installation Information" for a User Product means any methods,
+procedures, authorization keys, or other information required to install
+and execute modified versions of a covered work in that User Product from
+a modified version of its Corresponding Source.  The information must
+suffice to ensure that the continued functioning of the modified object
+code is in no case prevented or interfered with solely because
+modification has been made.
+
+  If you convey an object code work under this section in, or with, or
+specifically for use in, a User Product, and the conveying occurs as
+part of a transaction in which the right of possession and use of the
+User Product is transferred to the recipient in perpetuity or for a
+fixed term (regardless of how the transaction is characterized), the
+Corresponding Source conveyed under this section must be accompanied
+by the Installation Information.  But this requirement does not apply
+if neither you nor any third party retains the ability to install
+modified object code on the User Product (for example, the work has
+been installed in ROM).
+
+  The requirement to provide Installation Information does not include a
+requirement to continue to provide support service, warranty, or updates
+for a work that has been modified or installed by the recipient, or for
+the User Product in which it has been modified or installed.  Access to a
+network may be denied when the modification itself materially and
+adversely affects the operation of the network or violates the rules and
+protocols for communication across the network.
+
+  Corresponding Source conveyed, and Installation Information provided,
+in accord with this section must be in a format that is publicly
+documented (and with an implementation available to the public in
+source code form), and must require no special password or key for
+unpacking, reading or copying.
+
+  7. Additional Terms.
+
+  "Additional permissions" are terms that supplement the terms of this
+License by making exceptions from one or more of its conditions.
+Additional permissions that are applicable to the entire Program shall
+be treated as though they were included in this License, to the extent
+that they are valid under applicable law.  If additional permissions
+apply only to part of the Program, that part may be used separately
+under those permissions, but the entire Program remains governed by
+this License without regard to the additional permissions.
+
+  When you convey a copy of a covered work, you may at your option
+remove any additional permissions from that copy, or from any part of
+it.  (Additional permissions may be written to require their own
+removal in certain cases when you modify the work.)  You may place
+additional permissions on material, added by you to a covered work,
+for which you have or can give appropriate copyright permission.
+
+  Notwithstanding any other provision of this License, for material you
+add to a covered work, you may (if authorized by the copyright holders of
+that material) supplement the terms of this License with terms:
+
+    a) Disclaiming warranty or limiting liability differently from the
+    terms of sections 15 and 16 of this License; or
+
+    b) Requiring preservation of specified reasonable legal notices or
+    author attributions in that material or in the Appropriate Legal
+    Notices displayed by works containing it; or
+
+    c) Prohibiting misrepresentation of the origin of that material, or
+    requiring that modified versions of such material be marked in
+    reasonable ways as different from the original version; or
+
+    d) Limiting the use for publicity purposes of names of licensors or
+    authors of the material; or
+
+    e) Declining to grant rights under trademark law for use of some
+    trade names, trademarks, or service marks; or
+
+    f) Requiring indemnification of licensors and authors of that
+    material by anyone who conveys the material (or modified versions of
+    it) with contractual assumptions of liability to the recipient, for
+    any liability that these contractual assumptions directly impose on
+    those licensors and authors.
+
+  All other non-permissive additional terms are considered "further
+restrictions" within the meaning of section 10.  If the Program as you
+received it, or any part of it, contains a notice stating that it is
+governed by this License along with a term that is a further
+restriction, you may remove that term.  If a license document contains
+a further restriction but permits relicensing or conveying under this
+License, you may add to a covered work material governed by the terms
+of that license document, provided that the further restriction does
+not survive such relicensing or conveying.
+
+  If you add terms to a covered work in accord with this section, you
+must place, in the relevant source files, a statement of the
+additional terms that apply to those files, or a notice indicating
+where to find the applicable terms.
+
+  Additional terms, permissive or non-permissive, may be stated in the
+form of a separately written license, or stated as exceptions;
+the above requirements apply either way.
+
+  8. Termination.
+
+  You may not propagate or modify a covered work except as expressly
+provided under this License.  Any attempt otherwise to propagate or
+modify it is void, and will automatically terminate your rights under
+this License (including any patent licenses granted under the third
+paragraph of section 11).
+
+  However, if you cease all violation of this License, then your
+license from a particular copyright holder is reinstated (a)
+provisionally, unless and until the copyright holder explicitly and
+finally terminates your license, and (b) permanently, if the copyright
+holder fails to notify you of the violation by some reasonable means
+prior to 60 days after the cessation.
+
+  Moreover, your license from a particular copyright holder is
+reinstated permanently if the copyright holder notifies you of the
+violation by some reasonable means, this is the first time you have
+received notice of violation of this License (for any work) from that
+copyright holder, and you cure the violation prior to 30 days after
+your receipt of the notice.
+
+  Termination of your rights under this section does not terminate the
+licenses of parties who have received copies or rights from you under
+this License.  If your rights have been terminated and not permanently
+reinstated, you do not qualify to receive new licenses for the same
+material under section 10.
+
+  9. Acceptance Not Required for Having Copies.
+
+  You are not required to accept this License in order to receive or
+run a copy of the Program.  Ancillary propagation of a covered work
+occurring solely as a consequence of using peer-to-peer transmission
+to receive a copy likewise does not require acceptance.  However,
+nothing other than this License grants you permission to propagate or
+modify any covered work.  These actions infringe copyright if you do
+not accept this License.  Therefore, by modifying or propagating a
+covered work, you indicate your acceptance of this License to do so.
+
+  10. Automatic Licensing of Downstream Recipients.
+
+  Each time you convey a covered work, the recipient automatically
+receives a license from the original licensors, to run, modify and
+propagate that work, subject to this License.  You are not responsible
+for enforcing compliance by third parties with this License.
+
+  An "entity transaction" is a transaction transferring control of an
+organization, or substantially all assets of one, or subdividing an
+organization, or merging organizations.  If propagation of a covered
+work results from an entity transaction, each party to that
+transaction who receives a copy of the work also receives whatever
+licenses to the work the party's predecessor in interest had or could
+give under the previous paragraph, plus a right to possession of the
+Corresponding Source of the work from the predecessor in interest, if
+the predecessor has it or can get it with reasonable efforts.
+
+  You may not impose any further restrictions on the exercise of the
+rights granted or affirmed under this License.  For example, you may
+not impose a license fee, royalty, or other charge for exercise of
+rights granted under this License, and you may not initiate litigation
+(including a cross-claim or counterclaim in a lawsuit) alleging that
+any patent claim is infringed by making, using, selling, offering for
+sale, or importing the Program or any portion of it.
+
+  11. Patents.
+
+  A "contributor" is a copyright holder who authorizes use under this
+License of the Program or a work on which the Program is based.  The
+work thus licensed is called the contributor's "contributor version".
+
+  A contributor's "essential patent claims" are all patent claims
+owned or controlled by the contributor, whether already acquired or
+hereafter acquired, that would be infringed by some manner, permitted
+by this License, of making, using, or selling its contributor version,
+but do not include claims that would be infringed only as a
+consequence of further modification of the contributor version.  For
+purposes of this definition, "control" includes the right to grant
+patent sublicenses in a manner consistent with the requirements of
+this License.
+
+  Each contributor grants you a non-exclusive, worldwide, royalty-free
+patent license under the contributor's essential patent claims, to
+make, use, sell, offer for sale, import and otherwise run, modify and
+propagate the contents of its contributor version.
+
+  In the following three paragraphs, a "patent license" is any express
+agreement or commitment, however denominated, not to enforce a patent
+(such as an express permission to practice a patent or covenant not to
+sue for patent infringement).  To "grant" such a patent license to a
+party means to make such an agreement or commitment not to enforce a
+patent against the party.
+
+  If you convey a covered work, knowingly relying on a patent license,
+and the Corresponding Source of the work is not available for anyone
+to copy, free of charge and under the terms of this License, through a
+publicly available network server or other readily accessible means,
+then you must either (1) cause the Corresponding Source to be so
+available, or (2) arrange to deprive yourself of the benefit of the
+patent license for this particular work, or (3) arrange, in a manner
+consistent with the requirements of this License, to extend the patent
+license to downstream recipients.  "Knowingly relying" means you have
+actual knowledge that, but for the patent license, your conveying the
+covered work in a country, or your recipient's use of the covered work
+in a country, would infringe one or more identifiable patents in that
+country that you have reason to believe are valid.
+
+  If, pursuant to or in connection with a single transaction or
+arrangement, you convey, or propagate by procuring conveyance of, a
+covered work, and grant a patent license to some of the parties
+receiving the covered work authorizing them to use, propagate, modify
+or convey a specific copy of the covered work, then the patent license
+you grant is automatically extended to all recipients of the covered
+work and works based on it.
+
+  A patent license is "discriminatory" if it does not include within
+the scope of its coverage, prohibits the exercise of, or is
+conditioned on the non-exercise of one or more of the rights that are
+specifically granted under this License.  You may not convey a covered
+work if you are a party to an arrangement with a third party that is
+in the business of distributing software, under which you make payment
+to the third party based on the extent of your activity of conveying
+the work, and under which the third party grants, to any of the
+parties who would receive the covered work from you, a discriminatory
+patent license (a) in connection with copies of the covered work
+conveyed by you (or copies made from those copies), or (b) primarily
+for and in connection with specific products or compilations that
+contain the covered work, unless you entered into that arrangement,
+or that patent license was granted, prior to 28 March 2007.
+
+  Nothing in this License shall be construed as excluding or limiting
+any implied license or other defenses to infringement that may
+otherwise be available to you under applicable patent law.
+
+  12. No Surrender of Others' Freedom.
+
+  If conditions are imposed on you (whether by court order, agreement or
+otherwise) that contradict the conditions of this License, they do not
+excuse you from the conditions of this License.  If you cannot convey a
+covered work so as to satisfy simultaneously your obligations under this
+License and any other pertinent obligations, then as a consequence you may
+not convey it at all.  For example, if you agree to terms that obligate you
+to collect a royalty for further conveying from those to whom you convey
+the Program, the only way you could satisfy both those terms and this
+License would be to refrain entirely from conveying the Program.
+
+  13. Use with the GNU Affero General Public License.
+
+  Notwithstanding any other provision of this License, you have
+permission to link or combine any covered work with a work licensed
+under version 3 of the GNU Affero General Public License into a single
+combined work, and to convey the resulting work.  The terms of this
+License will continue to apply to the part which is the covered work,
+but the special requirements of the GNU Affero General Public License,
+section 13, concerning interaction through a network will apply to the
+combination as such.
+
+  14. Revised Versions of this License.
+
+  The Free Software Foundation may publish revised and/or new versions of
+the GNU General Public License from time to time.  Such new versions will
+be similar in spirit to the present version, but may differ in detail to
+address new problems or concerns.
+
+  Each version is given a distinguishing version number.  If the
+Program specifies that a certain numbered version of the GNU General
+Public License "or any later version" applies to it, you have the
+option of following the terms and conditions either of that numbered
+version or of any later version published by the Free Software
+Foundation.  If the Program does not specify a version number of the
+GNU General Public License, you may choose any version ever published
+by the Free Software Foundation.
+
+  If the Program specifies that a proxy can decide which future
+versions of the GNU General Public License can be used, that proxy's
+public statement of acceptance of a version permanently authorizes you
+to choose that version for the Program.
+
+  Later license versions may give you additional or different
+permissions.  However, no additional obligations are imposed on any
+author or copyright holder as a result of your choosing to follow a
+later version.
+
+  15. Disclaimer of Warranty.
+
+  THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY
+APPLICABLE LAW.  EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT
+HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY
+OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM
+IS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF
+ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
+
+  16. Limitation of Liability.
+
+  IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MODIFIES AND/OR CONVEYS
+THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY
+GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE
+USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF
+DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD
+PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
+EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGES.
+
+  17. Interpretation of Sections 15 and 16.
+
+  If the disclaimer of warranty and limitation of liability provided
+above cannot be given local legal effect according to their terms,
+reviewing courts shall apply local law that most closely approximates
+an absolute waiver of all civil liability in connection with the
+Program, unless a warranty or assumption of liability accompanies a
+copy of the Program in return for a fee.
+
+                     END OF TERMS AND CONDITIONS
+
+Copyright 2014 The DM Sans Project Authors (https://github.com/googlefonts/dm-fonts)
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is copied below, and is also available with a FAQ at:
+https://scripts.sil.org/OFL
+
+
+—————————————————————————————-
+SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
+—————————————————————————————-
+
+PREAMBLE
+The goals of the Open Font License (OFL) are to stimulate worldwide
+development of collaborative font projects, to support the font creation
+efforts of academic and linguistic communities, and to provide a free and
+open framework in which fonts may be shared and improved in partnership
+with others.
+
+The OFL allows the licensed fonts to be used, studied, modified and
+redistributed freely as long as they are not sold by themselves. The
+fonts, including any derivative works, can be bundled, embedded, 
+redistributed and/or sold with any software provided that any reserved
+names are not used by derivative works. The fonts and derivatives,
+however, cannot be released under any other type of license. The
+requirement for fonts to remain under this license does not apply
+to any document created using the fonts or their derivatives.
+
+DEFINITIONS
+"Font Software" refers to the set of files released by the Copyright
+Holder(s) under this license and clearly marked as such. This may
+include source files, build scripts and documentation.
+
+"Reserved Font Name" refers to any names specified as such after the
+copyright statement(s).
+
+"Original Version" refers to the collection of Font Software components as
+distributed by the Copyright Holder(s).
+
+"Modified Version" refers to any derivative made by adding to, deleting,
+or substituting — in part or in whole — any of the components of the
+Original Version, by changing formats or by porting the Font Software to a
+new environment.
+
+"Author" refers to any designer, engineer, programmer, technical
+writer or other person who contributed to the Font Software.
+
+PERMISSION & CONDITIONS
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of the Font Software, to use, study, copy, merge, embed, modify,
+redistribute, and sell modified and unmodified copies of the Font
+Software, subject to the following conditions:
+
+1) Neither the Font Software nor any of its individual components,
+in Original or Modified Versions, may be sold by itself.
+
+2) Original or Modified Versions of the Font Software may be bundled,
+redistributed and/or sold with any software, provided that each copy
+contains the above copyright notice and this license. These can be
+included either as stand-alone text files, human-readable headers or
+in the appropriate machine-readable metadata fields within text or
+binary files as long as those fields can be easily viewed by the user.
+
+3) No Modified Version of the Font Software may use the Reserved Font
+Name(s) unless explicit written permission is granted by the corresponding
+Copyright Holder. This restriction only applies to the primary font name as
+presented to the users.
+
+4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font
+Software shall not be used to promote, endorse or advertise any
+Modified Version, except to acknowledge the contribution(s) of the
+Copyright Holder(s) and the Author(s) or with their explicit written
+permission.
+
+5) The Font Software, modified or unmodified, in part or in whole,
+must be distributed entirely under this license, and must not be
+distributed under any other license. The requirement for fonts to
+remain under this license does not apply to any document created
+using the Font Software.
+
+TERMINATION
+This license becomes null and void if any of the above conditions are
+not met.
+
+DISCLAIMER
+THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
+OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
+DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
+OTHER DEALINGS IN THE FONT SOFTWARE.
+
+Copyright 2018 The Manrope Project Authors (https://github.com/googlefonts/manrope)
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is copied below, and is also available with a FAQ at:
+http://scripts.sil.org/OFL
+
+
+—————————————————————————————-
+SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
+—————————————————————————————-
+
+PREAMBLE
+The goals of the Open Font License (OFL) are to stimulate worldwide
+development of collaborative font projects, to support the font creation
+efforts of academic and linguistic communities, and to provide a free and
+open framework in which fonts may be shared and improved in partnership
+with others.
+
+The OFL allows the licensed fonts to be used, studied, modified and
+redistributed freely as long as they are not sold by themselves. The
+fonts, including any derivative works, can be bundled, embedded, 
+redistributed and/or sold with any software provided that any reserved
+names are not used by derivative works. The fonts and derivatives,
+however, cannot be released under any other type of license. The
+requirement for fonts to remain under this license does not apply
+to any document created using the fonts or their derivatives.
+
+DEFINITIONS
+"Font Software" refers to the set of files released by the Copyright
+Holder(s) under this license and clearly marked as such. This may
+include source files, build scripts and documentation.
+
+"Reserved Font Name" refers to any names specified as such after the
+copyright statement(s).
+
+"Original Version" refers to the collection of Font Software components as
+distributed by the Copyright Holder(s).
+
+"Modified Version" refers to any derivative made by adding to, deleting,
+or substituting — in part or in whole — any of the components of the
+Original Version, by changing formats or by porting the Font Software to a
+new environment.
+
+"Author" refers to any designer, engineer, programmer, technical
+writer or other person who contributed to the Font Software.
+
+PERMISSION & CONDITIONS
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of the Font Software, to use, study, copy, merge, embed, modify,
+redistribute, and sell modified and unmodified copies of the Font
+Software, subject to the following conditions:
+
+1) Neither the Font Software nor any of its individual components,
+in Original or Modified Versions, may be sold by itself.
+
+2) Original or Modified Versions of the Font Software may be bundled,
+redistributed and/or sold with any software, provided that each copy
+contains the above copyright notice and this license. These can be
+included either as stand-alone text files, human-readable headers or
+in the appropriate machine-readable metadata fields within text or
+binary files as long as those fields can be easily viewed by the user.
+
+3) No Modified Version of the Font Software may use the Reserved Font
+Name(s) unless explicit written permission is granted by the corresponding
+Copyright Holder. This restriction only applies to the primary font name as
+presented to the users.
+
+4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font
+Software shall not be used to promote, endorse or advertise any
+Modified Version, except to acknowledge the contribution(s) of the
+Copyright Holder(s) and the Author(s) or with their explicit written
+permission.
+
+5) The Font Software, modified or unmodified, in part or in whole,
+must be distributed entirely under this license, and must not be
+distributed under any other license. The requirement for fonts to
+remain under this license does not apply to any document created
+using the Font Software.
+
+TERMINATION
+This license becomes null and void if any of the above conditions are
+not met.
+
+DISCLAIMER
+THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
+OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
+DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
+OTHER DEALINGS IN THE FONT SOFTWARE.
+
+-->
+</body></html>

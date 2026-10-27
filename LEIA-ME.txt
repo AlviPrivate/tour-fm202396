@@ -1,0 +1,9 @@
+ALVI PRIVATE · TOUR VIRTUAL 360°
+
+Publique index.html e a pasta assets juntos em uma hospedagem estática (por exemplo, GitHub Pages, Netlify ou seu próprio domínio).
+
+Para testar no computador, sirva a pasta com um servidor HTTP local, por exemplo: python -m http.server 8080. Depois abra http://localhost:8080. Alguns navegadores bloqueiam panoramas quando o HTML é aberto diretamente por arquivo.
+
+As imagens, a marca e todas as passagens estão incluídas. Este ZIP contém o tour do visitante. Para continuar editando, salve também o projeto .alvi no Studio.
+
+Bibliotecas: Pannellum 2.5.6 (MIT) e JSZip 3.10.1 (MIT / GPLv3).
